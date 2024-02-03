@@ -1,2 +1,130 @@
 @import url('./reset.css');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
 
+:root {
+    --header-padding: 0.5em 1em;
+    --header-background-color: #2C2F34;
+    --content-background-color: #363739;
+    --text-color: #D3D3D3;
+    --button-color: #2492D0;
+    --button-text-color: white;
+    --button-radius: 0.5em;
+    --input-color: #2C2F34;
+}
+
+html {
+    font-size: 16px;
+    font-family: 'Inter', sans-serif;
+    color: var(--text-color);
+}
+
+html, body, #__nuxt {
+    height: 100%;
+}
+
+.app-layout {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    grid-template-areas: "header" "main";
+    height: 100%;
+}
+
+.app-layout__header {
+    grid-area: header;
+    display: flex;
+    justify-content: space-between;
+    background-color: var(--header-background-color);
+}
+
+.app-title {
+    padding: var(--header-padding);
+    font-size: 1.5em;
+}
+
+.app-external-link-icons {
+    padding: var(--header-padding);
+    display: flex;
+    gap: 1em;
+    align-items: center;
+}
+
+.app-external-link-icons img {
+    height: 2em;
+}
+
+.app-layout__main {
+    grid-area: main;
+    background-color: var(--content-background-color);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.app-dnd-border {
+    display: flex;
+    flex: 1;
+    margin: 1em;
+    padding: 1em;
+    border: 1px dashed;
+}
+
+.app-title-screen-container {
+    display: flex;
+    flex-direction: column;
+    width: 25em;
+    margin: 0 auto;
+    justify-content: center;
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+}
+
+.divider::before, .divider::after {
+    flex: 1;
+    content: '';
+    border-top: 1px solid var(--text-color);
+}
+
+.divider::before {
+    margin-right: 0.5em;
+}
+
+.divider::after {
+    margin-left: 0.5em;
+}
+
+.btn {
+    padding: 0.5em 1em;
+    background-color: var(--button-color);
+    border-radius: var(--button-radius);
+    color: var(--button-text-color);
+}
+
+input[type=text] {
+    padding: 0.5em 1em;
+    border-radius: var(--button-radius);
+    color: var(--input-color);
+}
+
+.input-group {
+    display: flex;
+    flex-direction: row;
+}
+
+.input-group > *:first-child {
+    border-radius: 0;
+    border-top-left-radius: var(--button-radius);
+    border-bottom-left-radius: var(--button-radius);
+}
+
+.input-group > *:last-child {
+    border-radius: 0;
+    border-top-right-radius: var(--button-radius);
+    border-bottom-right-radius: var(--button-radius);
+}
+
+.input-group input[type=text] {
+    flex: 1;
+}
