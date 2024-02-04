@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const mobileMenuOpen = ref(true);
+const mobileMenuOpen = ref(false);
 
 const toggleMobileMenu = () => {
     mobileMenuOpen.value = !mobileMenuOpen.value;
