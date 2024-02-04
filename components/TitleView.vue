@@ -36,6 +36,33 @@ const toggleMobileMenu = () => {
                     <BeatmapUrlForm/>
                     <div class="divider my-2">or</div>
                     <p class="mb-2 flex">Load from an example:</p>
+
+                    <div class="flex flex-col gap-4">
+                        <BeatmapCard
+                            beatmapSetId="123456"
+                            title="Example Beatmap"
+                            artist="Example Artist"
+                            creator="Example Creator"
+                        />
+                        <BeatmapCard
+                            beatmapSetId="123456"
+                            title="Example Beatmap"
+                            artist="Example Artist"
+                            creator="Example Creator"
+                        />
+                        <BeatmapCard
+                            beatmapSetId="123456"
+                            title="Example Beatmap"
+                            artist="Example Artist"
+                            creator="Example Creator"
+                        />
+                        <BeatmapCard
+                            beatmapSetId="123456"
+                            title="Example Beatmap"
+                            artist="Example Artist"
+                            creator="Example Creator"
+                        />
+                    </div>
                 </div>
             </div>
         </div>
