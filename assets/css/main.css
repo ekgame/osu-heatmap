@@ -138,4 +138,5 @@ input[type=text] {
 
 .input-group input[type=text] {
     flex: 1;
+    min-width: 0;
 }
