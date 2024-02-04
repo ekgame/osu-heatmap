@@ -11,12 +11,7 @@
                     <BasicButton>Load a file from your computer</BasicButton>
                     <div class="divider my-2">or</div>
                     <p class="mb-2 flex">Load from a link:</p>
-                    <form>                        
-                        <div class="input-group">
-                            <input type="text" placeholder="https://osu.ppy.sh/beatmapsets/..." id="beatmap-url"/>
-                            <BasicButton>Load</BasicButton>
-                        </div>
-                    </form>
+                    <BeatmapUrlForm/>
                     <div class="divider my-2">or</div>
                     <p class="mb-2 flex">Load from an example:</p>
                 </div>
