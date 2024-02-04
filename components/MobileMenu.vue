@@ -1,5 +1,5 @@
 <template>
-    <div class="mobile-menu-container">
+    <div class="mobile-menu-container shadow-2xl">
         <div class="external-link-list">
             <a class="external-link-with-icon" target="_blank" href="https://discord.gg/SKA2kwgZMp">
                 <img src="~/assets/icons/discord.svg"/>
@@ -24,7 +24,7 @@
 .mobile-menu-container {
     background-color: var(--content-background-color);
     padding: 1em;
-    position: absolute;
+    position: sticky;
     inset: 0;
 }
 
