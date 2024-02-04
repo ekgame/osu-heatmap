@@ -95,13 +95,6 @@ html, body, #__nuxt {
     margin-left: 0.5em;
 }
 
-.btn {
-    padding: 0.5em 1em;
-    background-color: var(--button-color);
-    border-radius: var(--button-radius);
-    color: var(--button-text-color);
-}
-
 input[type=text] {
     padding: 0.5em 1em;
     border-radius: var(--button-radius);
