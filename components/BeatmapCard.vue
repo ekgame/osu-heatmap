@@ -3,7 +3,7 @@ import type { mergeProps } from 'vue';
 <script setup lang="ts">
 const props = defineProps<{
     beatmapSetId: string,
-    title: number,
+    title: string,
     artist: string,
     creator: string,
 }>();
