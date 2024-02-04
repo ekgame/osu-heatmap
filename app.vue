@@ -1,4 +1,4 @@
 <template>
-    <TitleView/>
+    <TitlePage/>
 </template>
 

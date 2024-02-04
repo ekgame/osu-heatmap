@@ -1,5 +1,14 @@
+<script setup lang="ts">
+const props = defineProps({
+    fullWidth: {
+        type: Boolean,
+        default: false,
+    },
+});
+</script>
+
 <template>
-    <button class="btn">
+    <button class="btn" :class="{ 'flex-1': props.fullWidth }">
         <slot></slot>
     </button>
 </template>
@@ -10,6 +19,10 @@
     background-color: var(--button-color);
     border-radius: var(--button-radius);
     color: var(--button-text-color);
+}
+
+.btn:hover {
+    background-color: var(--button-hover-color);
 }
 
 .input-group > .btn:last-child {

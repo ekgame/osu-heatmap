@@ -30,6 +30,7 @@ const props = defineProps<{
     border-bottom-left-radius: 0.5em;
     background-position: center;
     background-size: cover;
+    width: 6em;
 
     &.default {
         background-image: url('/assets/default-bg.png');
