@@ -43,12 +43,20 @@ html, body, #__nuxt {
 
 .app-external-link-icons {
     padding: var(--header-padding);
-    display: flex;
     gap: 1em;
     align-items: center;
 }
 
 .app-external-link-icons img {
+    height: 2em;
+}
+
+.app-mobile-toggle {
+    padding: var(--header-padding);
+    align-items: center;
+}
+
+.app-mobile-toggle img {
     height: 2em;
 }
 
@@ -58,6 +66,7 @@ html, body, #__nuxt {
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    position: relative;
 }
 
 .app-dnd-border {
@@ -66,6 +75,11 @@ html, body, #__nuxt {
     margin: 1em;
     padding: 1em;
     border: 1px dashed;
+
+    @media (max-width: 640px) {
+        border: none;
+        margin: 0;
+    }
 }
 
 .app-title-screen-container {
@@ -74,6 +88,10 @@ html, body, #__nuxt {
     width: 25em;
     margin: 0 auto;
     justify-content: center;
+
+    @media (max-width: 640px) {
+        width: 100%;
+    }
 }
 
 .divider {
