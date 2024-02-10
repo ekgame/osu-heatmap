@@ -33,29 +33,61 @@ const emit = defineEmits([
             <p class="mb-2 flex">Load from an example:</p>
 
             <div class="flex flex-col gap-4">
-                <BeatmapCard
-                    beatmapSetId="123456"
-                    title="Example Beatmap"
-                    artist="Example Artist"
-                    creator="Example Creator"
+                <ExampleBeatmapCard
+                    link="https://osu.ppy.sh/beatmapsets/380143#osu/831868"
+                    beatmapSetId="380143"
+                    title="RELOADED"
+                    artist="EGOIST"
+                    creator="handsome"
+                    @loadFromUrl="emit('loadFromUrl', $event)"
                 />
-                <BeatmapCard
-                    beatmapSetId="123456"
-                    title="Example Beatmap"
-                    artist="Example Artist"
-                    creator="Example Creator"
+                <ExampleBeatmapCard
+                    link="https://osu.ppy.sh/beatmapsets/123839#osu/316018"
+                    beatmapSetId="123839"
+                    title="The Grimoire of Alice"
+                    artist="Akiyama Uni"
+                    creator="Hollow Wings"
+                    @loadFromUrl="emit('loadFromUrl', $event)"
                 />
-                <BeatmapCard
-                    beatmapSetId="123456"
-                    title="Example Beatmap"
-                    artist="Example Artist"
-                    creator="Example Creator"
+                <ExampleBeatmapCard
+                    link="https://osu.ppy.sh/beatmapsets/1521219#osu/3337690"
+                    beatmapSetId="1521219"
+                    title="I AM"
+                    artist="Theocracy"
+                    creator="I Must Decrease"
+                    @loadFromUrl="emit('loadFromUrl', $event)"
                 />
-                <BeatmapCard
-                    beatmapSetId="123456"
-                    title="Example Beatmap"
-                    artist="Example Artist"
-                    creator="Example Creator"
+                <ExampleBeatmapCard
+                    link="https://osu.ppy.sh/beatmapsets/675125#osu/1428309"
+                    beatmapSetId="675125"
+                    title="Cookie Bouquets"
+                    artist="Dormir"
+                    creator="dsco"
+                    @loadFromUrl="emit('loadFromUrl', $event)"
+                />
+                <ExampleBeatmapCard
+                    link="https://osu.ppy.sh/beatmapsets/300748#osu/674514"
+                    beatmapSetId="300748"
+                    title="+Danshi"
+                    artist="Reol"
+                    creator="Chaoslitz"
+                    @loadFromUrl="emit('loadFromUrl', $event)"
+                />
+                <ExampleBeatmapCard
+                    link="https://osu.ppy.sh/beatmapsets/364574#osu/800237"
+                    beatmapSetId="364574"
+                    title="TSUBAKI"
+                    artist="Ocelot"
+                    creator="Hollow Wings"
+                    @loadFromUrl="emit('loadFromUrl', $event)"
+                />
+                <ExampleBeatmapCard
+                    link="https://osu.ppy.sh/beatmapsets/870930#osu/1819850"
+                    beatmapSetId="870930"
+                    title="Ash Like Snow (TV Size)"
+                    artist="the brilliant green"
+                    creator="Myxomatosis"
+                    @loadFromUrl="emit('loadFromUrl', $event)"
                 />
             </div>
         </div>
