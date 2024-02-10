@@ -44,6 +44,7 @@ const emit = defineEmits([
         display: flex;
         justify-content: center;
         align-items: center;
+        position: relative;
     }
 
     @media (max-width: 640px) {

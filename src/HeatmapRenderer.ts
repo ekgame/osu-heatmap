@@ -108,9 +108,22 @@ class BeatmapHeatmapRenderer {
     }
 }
 
+function* chunks<T>(arr: T[], n: number): Generator<T[], void> {
+    for (let i = 0; i < arr.length; i += n) {
+        yield arr.slice(i, i + n);
+    }
+}
+
+export interface RenderingProgress {
+    finished: boolean;
+    max: number;
+    current: number;
+}
+
 export async function render(
     beatmap: StandardBeatmap,
     canvas: HTMLCanvasElement,
+    progressUpdate: (progress: RenderingProgress) => void,
 ): Promise<void> {
     const context = canvas.getContext('2d')!!;
     if (!context) {
@@ -120,22 +133,55 @@ export async function render(
     const circleSize = beatmap.difficulty.circleSize;
     const circleRadius = 54.4 - 4.48 * circleSize;
     const heatmapRenderer = new BeatmapHeatmapRenderer(canvas.width, canvas.height, circleRadius);
+    const totalObjects = beatmap.hitObjects.length;
+    let totalPorcessed = 0;
+    const objectChunks = [...chunks(beatmap.hitObjects, 50)];
 
-    beatmap.hitObjects.forEach((hitObject) => {
-        if (hitObject instanceof Circle) {
-            heatmapRenderer.renderCircle(hitObject);
-        }
-        else if (hitObject instanceof Slider) {
-            heatmapRenderer.renderSlider(hitObject);
-        }
+    progressUpdate({
+        finished: false,
+        max: totalObjects,
+        current: totalPorcessed,
     });
 
-    const gradient = tinygradient([
-        {color: 'black', pos: 0},
-        {color: '#e93e3a', pos: 0.2},
-        {pos: 0.4},
-        {color: '#FFF33B', pos: 1}
-    ]);
+    function doChunk() {
+        if (objectChunks.length === 0) {
+            const gradient = tinygradient([
+                {color: 'black', pos: 0},
+                {color: '#e93e3a', pos: 0.2},
+                {pos: 0.4},
+                {color: '#FFF33B', pos: 1}
+            ]);
+        
+            heatmapRenderer.renderToCanvas(canvas, gradient);
 
-    heatmapRenderer.renderToCanvas(canvas, gradient);
+            progressUpdate({
+                finished: true,
+                max: totalObjects,
+                current: totalPorcessed,
+            });
+            return;
+        }
+
+        const chunk = objectChunks.shift()!!;
+
+        chunk.forEach((hitObject) => {
+            if (hitObject instanceof Circle) {
+                heatmapRenderer.renderCircle(hitObject);
+            }
+            else if (hitObject instanceof Slider) {
+                heatmapRenderer.renderSlider(hitObject);
+            }
+            totalPorcessed++;
+        });
+
+        progressUpdate({
+            finished: false,
+            max: totalObjects,
+            current: totalPorcessed,
+        });
+
+        setTimeout(doChunk, 0);
+    }
+
+    setTimeout(doChunk, 0);
 }

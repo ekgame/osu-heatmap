@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { render } from '~/src/HeatmapRenderer';
+import { render, type RenderingProgress } from '~/src/HeatmapRenderer';
 import { BeatmapDecoder } from 'osu-parsers';
 import { StandardRuleset } from 'osu-standard-stable';
 import type { BeatmapDefinition, BeatmapVersion } from './src/models';
@@ -10,6 +10,7 @@ const currentBeatmap = ref<BeatmapDefinition|null>(null);
 const availableVersions = ref<BeatmapVersion[]>([]);
 const selectedVersion = ref<BeatmapVersion|null>(null);
 const mobileMenuOpen = ref(false);
+const renderingProgress = ref<RenderingProgress|null>(null);
 
 const canvas = ref(null);
 const canvasMargin = 55;
@@ -20,25 +21,39 @@ const toggleMobileMenu = () => {
     mobileMenuOpen.value = !mobileMenuOpen.value;
 };
 
-function loadFromFile() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.osu,.osz';
-    input.onchange = (e) => {
-        const file = (e.target as HTMLInputElement).files?.[0];
-        if (!file) {
-            return;
-        }
+const readTextFile = (file: File) => new Promise((resolve, reject) => {
+  const reader = new FileReader();
+  reader.onload = (event) => resolve(event.target!!.result);
+  reader.onerror = reject;
+  reader.readAsText(file);
+});
 
-        const reader = new FileReader();
-        reader.readAsText(file);
-        reader.onload = async () => {
-            await loadSingleBeatmap(reader.result as string);
-        };
-    };
-    input.click();
+async function loadFromFile() {
+    const file = await fileSelectPopup();
+    console.log(file);
+    if (!file) return;
+    const string = await readTextFile(file);
+    await loadSingleBeatmap(string as string);
 }
-``
+
+async function fileSelectPopup(): Promise<File|null> {
+    return new Promise((resolve, reject) => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.osu,.osz';
+        input.onchange = async (e) => {
+            const file = (e.target as HTMLInputElement).files?.[0];
+            if (!file) {
+                resolve(null);
+                return;
+            }
+            resolve(file);
+        };
+        input.onerror = reject;
+        input.click();
+    });
+}
+
 async function loadSingleBeatmap(string: string) {
     clearBeatmap();
     const decoder = new BeatmapDecoder();
@@ -76,10 +91,20 @@ async function loadSingleBeatmap(string: string) {
     }
 }
 
-async function renderBeatmap(beatmap: Beatmap) {
-  const ruleset = new StandardRuleset();
-  const standardWithNoMod = ruleset.applyToBeatmap(beatmap);
-  await render(standardWithNoMod, canvas.value!!);
+async function renderBeatmap(beatmap: Beatmap): Promise<void> {
+  return new Promise(async (resolve, reject) => {
+    const ruleset = new StandardRuleset();
+    const standardWithNoMod = ruleset.applyToBeatmap(beatmap);
+    await render(standardWithNoMod, canvas.value!!, handleRenderingProgress);
+  });
+}
+
+function handleRenderingProgress(progress: RenderingProgress) {
+    console.log(progress);
+    renderingProgress.value = progress;
+    if (progress.finished) {
+        renderingProgress.value = null;
+    }
 }
 
 function clearBeatmap() {
@@ -107,13 +132,18 @@ function clearBeatmap() {
 
             <TitlePage
                 v-if="!currentBeatmap"
-                @loadFromFile="loadFromFile"
+                @loadFromFile="(async () => loadFromFile())"
             />
             <HeatmapPage
                 v-else
                 :beatmap="currentBeatmap"
                 @reset="clearBeatmap"
             >
+                <RenderingProgress 
+                    v-if="renderingProgress" 
+                    :progress="renderingProgress"
+                />
+
                 <PinchScrollZoom
                     within
                     centred
