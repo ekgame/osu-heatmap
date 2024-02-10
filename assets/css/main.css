@@ -81,6 +81,10 @@ html, body, #__nuxt {
         border: none;
         margin: 0;
     }
+
+    &.active {
+        background-color: #006671;
+    }
 }
 
 .app-title-screen-container {

@@ -1,14 +1,36 @@
 <script setup lang="ts">
+let active = ref(false)
 
+function setActive() {
+    active.value = true
+}
+
+function setInactive() {
+    active.value = false
+}
+
+function onDrop(event: DragEvent) {
+    setInactive();
+    emit('loadFromDroppedFile', event)
+}
 
 const emit = defineEmits([
     'loadFromFile',
     'loadFromUrl',
+    'loadFromDroppedFile',
 ]);
+
 </script>
 
 <template>
-    <div class="app-dnd-border">
+    <div 
+        class="app-dnd-border"
+        :class="{ active: active }"
+        @dragenter.prevent="setActive"
+        @dragover.prevent="setActive"
+        @dragleave.prevent="setInactive"
+        @drop.prevent="onDrop"
+    >
         <div class="app-title-screen-container">
             <h1 class="font-bold text-2xl">Load a beatmap</h1>
             <p class="mb-10">Supports .osu and .osz files for the standard gamemode</p>

@@ -39,6 +39,18 @@ function getFileExtension(filename: string): string|null {
 async function loadFromFile() {
     const file = await fileSelectPopup();
     if (!file) return;
+    loadFile(file);
+}
+
+async function loadFromDroppedFile(event: DragEvent) {
+    const file = event.dataTransfer?.files[0];
+    if (!file) {
+        return;
+    }
+    loadFile(file);
+}
+
+async function loadFile(file: File) {
     const fileExtension = getFileExtension(file.name);
     if (fileExtension === 'osz') {
         loadBeatmapSet(file);
@@ -281,6 +293,7 @@ async function selectVersion(version: BeatmapVersion) {
                 v-if="!currentBeatmap"
                 @loadFromFile="loadFromFile"
                 @loadFromUrl="loadFromUrl"
+                @loadFromDroppedFile="loadFromDroppedFile"
             />
             <HeatmapPage
                 v-else
