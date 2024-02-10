@@ -140,7 +140,15 @@ const emit = defineEmits([
                     beatmapSetId="1343602"
                     title="Unbreakable (Sped Up & Cut Ver.)"
                     artist="Fireflight"
-                    creator=" wafer"
+                    creator="wafer"
+                    @loadFromUrl="emit('loadFromUrl', $event)"
+                />
+                <ExampleBeatmapCard
+                    link="https://osu.ppy.sh/beatmapsets/1607795#osu/3283179"
+                    beatmapSetId="1607795"
+                    title="Shrine Maiden - Eien no Miko"
+                    artist="Yonder Voice"
+                    creator="__Ag"
                     @loadFromUrl="emit('loadFromUrl', $event)"
                 />
             </div>
