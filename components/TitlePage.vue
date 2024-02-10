@@ -111,6 +111,38 @@ const emit = defineEmits([
                     creator="Myxomatosis"
                     @loadFromUrl="emit('loadFromUrl', $event)"
                 />
+                <ExampleBeatmapCard
+                    link="https://osu.ppy.sh/beatmapsets/1590324#osu/4019497"
+                    beatmapSetId="1590324"
+                    title="B2 - An autumnal equinox"
+                    artist="The Caretaker"
+                    creator="Velamy"
+                    @loadFromUrl="emit('loadFromUrl', $event)"
+                />
+                <ExampleBeatmapCard
+                    link="https://osu.ppy.sh/beatmapsets/1582234#osu/3231140"
+                    beatmapSetId="1582234"
+                    title="Thoughtcrime"
+                    artist="Yorushika"
+                    creator="Inversion2"
+                    @loadFromUrl="emit('loadFromUrl', $event)"
+                />
+                <ExampleBeatmapCard
+                    link="https://osu.ppy.sh/beatmapsets/1206001#osu/2511210"
+                    beatmapSetId="1206001"
+                    title="Apex Of The Vortex"
+                    artist="Tipper"
+                    creator="verychill"
+                    @loadFromUrl="emit('loadFromUrl', $event)"
+                />
+                <ExampleBeatmapCard
+                    link="https://osu.ppy.sh/beatmapsets/1343602#osu/2782887"
+                    beatmapSetId="1343602"
+                    title="Unbreakable (Sped Up & Cut Ver.)"
+                    artist="Fireflight"
+                    creator=" wafer"
+                    @loadFromUrl="emit('loadFromUrl', $event)"
+                />
             </div>
         </div>
     </div>
