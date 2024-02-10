@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import type { BeatmapDefinition } from '~/src/models';
+import type { BeatmapDefinition, BeatmapVersion } from '~/src/models';
 
 const props = defineProps<{
-    beatmap: BeatmapDefinition|null;
+    beatmap: BeatmapDefinition|null,
+    selectedVersion: BeatmapVersion|null,
+    availableVersions: BeatmapVersion[],
 }>();
 
 const emit = defineEmits([
     'reset',
+    'selectVersion',
 ]);
 </script>
 
@@ -23,14 +26,15 @@ const emit = defineEmits([
                 />
             </div>
             <div class="flex flex-col">
-                <!-- <div 
+                <div 
                     class="version-button"
-                    :class="{ active: selected === index }"
-                    v-for="(version, index) in versions" 
+                    :class="{ active: selectedVersion && selectedVersion === version }"
+                    v-for="(version, index) in availableVersions" 
                     :key="index"
+                    @click="emit('selectVersion', version)"
                 >
-                    {{ version }}
-                </div> -->
+                    {{ version.version }}
+                </div>
             </div>
         </template>
 

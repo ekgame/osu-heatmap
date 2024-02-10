@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import type { BeatmapDefinition } from '~/src/models';
+import type { BeatmapDefinition, BeatmapVersion } from '~/src/models';
 
 const props = defineProps<{
-    beatmap: BeatmapDefinition|null;
+    beatmap: BeatmapDefinition|null,
+    availableVersions: BeatmapVersion[],
+    selectedVersion: BeatmapVersion|null,
 }>();
 
 const emit = defineEmits([
     'reset',
+    'selectVersion',
 ]);
 </script>
 
@@ -15,7 +18,10 @@ const emit = defineEmits([
         <div class="left">
             <HeatmapInfoAndOptions
                 :beatmap="beatmap"
+                :availableVersions="availableVersions"
+                :selectedVersion="selectedVersion"
                 @reset="emit('reset')"
+                @selectVersion="emit('selectVersion', $event)"
             />
         </div>
         <div class="right">

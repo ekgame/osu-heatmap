@@ -5,6 +5,7 @@ import { StandardRuleset } from 'osu-standard-stable';
 import type { BeatmapDefinition, BeatmapVersion } from './src/models';
 import type { Beatmap } from 'osu-classes';
 import PinchScrollZoom from '@coddicat/vue-pinch-scroll-zoom';
+import JsZip from "jszip";
 
 const currentBeatmap = ref<BeatmapDefinition|null>(null);
 const availableVersions = ref<BeatmapVersion[]>([]);
@@ -30,12 +31,27 @@ const readTextFile = (file: File) => new Promise((resolve, reject) => {
   reader.readAsText(file);
 });
 
+function getFileExtension(filename: string): string|null {
+    const re = /(?:\.([^.]+))?$/;
+    return re.exec(filename)![1];
+}
+
 async function loadFromFile() {
     const file = await fileSelectPopup();
-    console.log(file);
     if (!file) return;
-    const string = await readTextFile(file);
-    await loadSingleBeatmap(string as string);
+    const fileExtension = getFileExtension(file.name);
+    if (fileExtension === 'osz') {
+        loadBeatmapSet(file);
+    }
+    else if (fileExtension === 'osu') {
+        const string = await readTextFile(file);
+        await loadSingleBeatmap(string as string);
+    }
+    else {
+        console.error('Unsupported file type');
+        // TODO: show error message
+        return;
+    }
 }
 
 async function fileSelectPopup(): Promise<File|null> {
@@ -54,6 +70,67 @@ async function fileSelectPopup(): Promise<File|null> {
         input.onerror = reject;
         input.click();
     });
+}
+
+async function loadBeatmapSet(file: File) {
+    clearBeatmap();
+    const decoder = new BeatmapDecoder();
+    const zip = await JsZip.loadAsync(file);
+    const beatmapData: {
+        beatmap: Beatmap,
+        raw: string,
+    }[] = [];
+
+    for (const [_, zipEntry] of Object.entries(zip.files)) {
+        if (zipEntry.name.endsWith('.osu')) {
+            const string = await zipEntry.async('string');
+            const beatmap = decoder.decodeFromString(string);
+            console.log(zipEntry.name, beatmap.mode);
+            if (beatmap.mode !== 0) {
+                return;
+            }
+            beatmapData.push({
+                beatmap: beatmap,
+                raw: string,
+            });
+        }
+    }
+
+    if (beatmapData.length === 0) {
+        // TODO: show error message
+        console.error('No osu! standard mode beatmaps found in the .osz file.');
+        return;
+    }
+
+    const referenceBeatmap = beatmapData[0].beatmap;
+    let beatmapSetId = null;
+    if (referenceBeatmap.metadata.beatmapSetId) {
+        beatmapSetId = `${referenceBeatmap.metadata.beatmapSetId}`;
+    }
+
+    currentBeatmap.value = {
+        beatmapSetId: beatmapSetId,
+        title: referenceBeatmap.metadata.title,
+        artist: referenceBeatmap.metadata.artist,
+        creator: referenceBeatmap.metadata.creator,
+    };
+
+    availableVersions.value = beatmapData.map((data) => {
+        let beatmapId = null;
+        if (data.beatmap.metadata.beatmapId) {
+            beatmapId = `${data.beatmap.metadata.beatmapId}`;
+        }
+        return {
+            beatmapId: beatmapId,
+            version: data.beatmap.metadata.version,
+            source: 'local',
+            raw: data.raw,
+        };
+    });
+
+    selectedVersion.value = availableVersions.value[0];
+    await nextTick();
+    renderBeatmap(beatmapData[0].beatmap);
 }
 
 async function loadSingleBeatmap(string: string) {
@@ -82,11 +159,13 @@ async function loadSingleBeatmap(string: string) {
         selectedVersion.value = {
             beatmapId: beatmapId,
             version: beatmap.metadata.version,
+            source: 'local',
+            raw: string,
         };
         availableVersions.value = [selectedVersion.value];
 
         await nextTick();
-        await renderBeatmap(beatmap);
+        renderBeatmap(beatmap);
     } catch (e) {
         console.error(e);
         //  TODO: show error message
@@ -124,6 +203,23 @@ function clearBeatmap() {
     availableVersions.value = [];
     selectedVersion.value = null;
 }
+
+function selectVersion(version: BeatmapVersion) {
+    selectedVersion.value = version;
+    const decoder = new BeatmapDecoder();
+
+    if (version.source === 'local') {
+        const beatmap = decoder.decodeFromString(version.raw!!);
+        renderBeatmap(beatmap);
+    }
+    else if (version.source === 'api') {
+        // TOOD: load source from API
+    }
+    else {
+        console.error('Unknown version source');
+        // TODO: show error message
+    }
+}
 </script>
 
 <template>
@@ -137,7 +233,10 @@ function clearBeatmap() {
             <MobileMenu v-if="mobileMenuOpen">
                 <HeatmapInfoAndOptions
                     :beatmap="currentBeatmap"
+                    :availableVersions="availableVersions"
+                    :selectedVersion="selectedVersion"
                     @reset="clearBeatmap"
+                    @selectVersion="selectVersion"
                 />
             </MobileMenu>
 
@@ -148,7 +247,10 @@ function clearBeatmap() {
             <HeatmapPage
                 v-else
                 :beatmap="currentBeatmap"
+                :availableVersions="availableVersions"
+                :selectedVersion="selectedVersion"
                 @reset="clearBeatmap"
+                @selectVersion="selectVersion"
             >
                 <PinchScrollZoom
                     within

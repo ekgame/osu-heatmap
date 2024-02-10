@@ -8,4 +8,6 @@ export interface BeatmapDefinition {
 export interface BeatmapVersion {
     beatmapId: string|null;
     version: string;
+    source: 'api'|'local';
+    raw?: string;
 }
