@@ -1,41 +1,47 @@
-
-import type { BasicButton } from '#build/components';
 <script setup lang="ts">
+import type { BeatmapDefinition } from '~/src/models';
 
-const selected = ref(0);
-const versions = ref([
-    'Easy',
-    'Normal',
-    'Hard',
-    'Insane',
-    'Expert',
+const props = defineProps<{
+    beatmap: BeatmapDefinition|null;
+}>();
+
+const emit = defineEmits([
+    'reset',
 ]);
-
 </script>
 
 <template>
     <div class="flex flex-col">
-        <div class="p-4">
-            <p class="mb-2 font-bold">Currently viewing:</p>
-            <BeatmapCard
-                beatmapSetId="123456"
-                title="Example Beatmap"
-                artist="Example Artist"
-                creator="Example Creator"
-            />
-        </div>
-        <div class="flex flex-col">
-            <div 
-                class="version-button"
-                :class="{ active: selected === index }"
-                v-for="(version, index) in versions" 
-                :key="index"
-            >
-                {{ version }}
+        <template v-if="beatmap">
+            <div class="p-4">
+                <p class="mb-2 font-bold">Currently viewing:</p>
+                <BeatmapCard
+                    :beatmapSetId="beatmap.beatmapSetId"
+                    :title="beatmap.title"
+                    :artist="beatmap.artist"
+                    :creator="beatmap.creator"
+                />
             </div>
-        </div>
+            <div class="flex flex-col">
+                <!-- <div 
+                    class="version-button"
+                    :class="{ active: selected === index }"
+                    v-for="(version, index) in versions" 
+                    :key="index"
+                >
+                    {{ version }}
+                </div> -->
+            </div>
+        </template>
+
         <div class="p-4 flex flex-col">
-            <BasicButton :fullWidth="true">Choose another beatmap</BasicButton>
+            <BasicButton
+                v-if="beatmap"
+                :fullWidth="true" 
+                @click="emit('reset')"
+            >
+                Choose another beatmap
+            </BasicButton>
             <div class="external-link-list mt-8">
                 <a class="external-link-with-icon" target="_blank" href="https://discord.gg/SKA2kwgZMp">
                     <img src="~/assets/icons/discord.svg"/>

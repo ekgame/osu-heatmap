@@ -16,6 +16,7 @@
     "vue-router": "^4.2.5"
   },
   "dependencies": {
+    "@coddicat/vue-pinch-scroll-zoom": "^4.3.5",
     "osu-classes": "^3.0.1",
     "osu-parsers": "^4.1.6",
     "osu-standard-stable": "^5.0.0",

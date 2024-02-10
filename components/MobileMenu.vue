@@ -1,6 +1,6 @@
 <template>
     <div class="mobile-menu-container shadow-2xl">
-        
+        <slot></slot>
     </div>
 </template>
 

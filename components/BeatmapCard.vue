@@ -1,8 +1,7 @@
 
-import type { mergeProps } from 'vue';
 <script setup lang="ts">
 const props = defineProps<{
-    beatmapSetId: string,
+    beatmapSetId: string|null,
     title: string,
     artist: string,
     creator: string,

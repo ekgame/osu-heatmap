@@ -5,10 +5,15 @@ const props = defineProps({
         default: false,
     },
 });
+const emit = defineEmits(['click']);
 </script>
 
 <template>
-    <button class="btn" :class="{ 'flex-1': props.fullWidth }">
+    <button 
+        class="btn"
+        :class="{ 'flex-1': props.fullWidth }"
+        @click="emit('click')"
+    >
         <slot></slot>
     </button>
 </template>

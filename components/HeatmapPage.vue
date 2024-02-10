@@ -1,26 +1,25 @@
 <script setup lang="ts">
-const mobileMenuOpen = ref(false);
+import type { BeatmapDefinition } from '~/src/models';
 
-const toggleMobileMenu = () => {
-    mobileMenuOpen.value = !mobileMenuOpen.value;
-};
+const props = defineProps<{
+    beatmap: BeatmapDefinition|null;
+}>();
+
+const emit = defineEmits([
+    'reset',
+]);
 </script>
 
 <template>
-    <div class="app-layout">
-        <HeaderView 
-            :mobileMenuOpen="mobileMenuOpen" 
-            @toggleMobileMenu="toggleMobileMenu"
-        />
-
-        <div class="app-layout__main">
-            <MobileMenu v-if="mobileMenuOpen"/>
-            <div class="layout">
-                <div class="left">
-                    <HeatmapInfoAndOptions/>
-                </div>
-                <div class="right"></div>
-            </div>
+    <div class="layout">
+        <div class="left">
+            <HeatmapInfoAndOptions
+                :beatmap="beatmap"
+                @reset="emit('reset')"
+            />
+        </div>
+        <div class="right">
+            <slot></slot>
         </div>
     </div>
 </template>
@@ -41,6 +40,21 @@ const toggleMobileMenu = () => {
     .right {
         grid-area: right;
         background-color: black;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    @media (max-width: 640px) {
+        .layout {
+            grid-template-columns: 1fr;
+            grid-template-areas: "right";
+        }
+
+        .left {
+            display: none;
+        }
     }
 }
 </style>
