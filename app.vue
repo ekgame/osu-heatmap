@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { render, type RenderingProgress } from '~/src/HeatmapRenderer';
+import { render, type AbortRenderingSignal, type RenderingProgress } from '~/src/HeatmapRenderer';
 import { BeatmapDecoder } from 'osu-parsers';
 import { StandardRuleset } from 'osu-standard-stable';
 import type { BeatmapDefinition, BeatmapVersion } from './src/models';
@@ -16,6 +16,8 @@ const canvas = ref(null);
 const canvasMargin = 55;
 const canvasWidth = 512 + canvasMargin * 2;
 const canvasHeight = 384 + canvasMargin * 2;
+
+let abortRenderingSignal: AbortRenderingSignal|null = null;
 
 const toggleMobileMenu = () => {
     mobileMenuOpen.value = !mobileMenuOpen.value;
@@ -91,12 +93,20 @@ async function loadSingleBeatmap(string: string) {
     }
 }
 
-async function renderBeatmap(beatmap: Beatmap): Promise<void> {
-  return new Promise(async (resolve, reject) => {
+function renderBeatmap(beatmap: Beatmap) {
+    abortRendering();
     const ruleset = new StandardRuleset();
     const standardWithNoMod = ruleset.applyToBeatmap(beatmap);
-    await render(standardWithNoMod, canvas.value!!, handleRenderingProgress);
-  });
+    abortRenderingSignal = render(standardWithNoMod, canvas.value!!, handleRenderingProgress);
+}
+
+function abortRendering() {
+    console.log('abortRendering');
+    if (abortRenderingSignal) {
+        abortRenderingSignal.abort();
+        abortRenderingSignal = null;
+    }
+    renderingProgress.value = null;
 }
 
 function handleRenderingProgress(progress: RenderingProgress) {
@@ -108,6 +118,7 @@ function handleRenderingProgress(progress: RenderingProgress) {
 }
 
 function clearBeatmap() {
+    abortRendering();
     mobileMenuOpen.value = false;
     currentBeatmap.value = null;
     availableVersions.value = [];
@@ -139,11 +150,6 @@ function clearBeatmap() {
                 :beatmap="currentBeatmap"
                 @reset="clearBeatmap"
             >
-                <RenderingProgress 
-                    v-if="renderingProgress" 
-                    :progress="renderingProgress"
-                />
-
                 <PinchScrollZoom
                     within
                     centred
@@ -152,6 +158,12 @@ function clearBeatmap() {
                 >
                     <canvas :width="canvasWidth" :height="canvasHeight" ref="canvas"></canvas>
                 </PinchScrollZoom>
+
+                <RenderingProgress 
+                    v-if="renderingProgress" 
+                    :progress="renderingProgress"
+                    @abort="abortRendering"
+                />
             </HeatmapPage>
         </div>
     </div>

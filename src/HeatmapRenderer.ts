@@ -120,11 +120,15 @@ export interface RenderingProgress {
     current: number;
 }
 
-export async function render(
+export interface AbortRenderingSignal {
+    abort: () => void;
+}
+
+export function render(
     beatmap: StandardBeatmap,
     canvas: HTMLCanvasElement,
     progressUpdate: (progress: RenderingProgress) => void,
-): Promise<void> {
+): AbortRenderingSignal {
     const context = canvas.getContext('2d')!!;
     if (!context) {
         throw new Error('Could not get 2d context');
@@ -137,6 +141,8 @@ export async function render(
     let totalPorcessed = 0;
     const objectChunks = [...chunks(beatmap.hitObjects, 50)];
 
+    let isAborted = false;
+
     progressUpdate({
         finished: false,
         max: totalObjects,
@@ -144,6 +150,10 @@ export async function render(
     });
 
     function doChunk() {
+        if (isAborted) {
+            return;
+        }
+
         if (objectChunks.length === 0) {
             const gradient = tinygradient([
                 {color: 'black', pos: 0},
@@ -165,6 +175,9 @@ export async function render(
         const chunk = objectChunks.shift()!!;
 
         chunk.forEach((hitObject) => {
+            if (isAborted) {
+                return;
+            }
             if (hitObject instanceof Circle) {
                 heatmapRenderer.renderCircle(hitObject);
             }
@@ -174,14 +187,22 @@ export async function render(
             totalPorcessed++;
         });
 
-        progressUpdate({
-            finished: false,
-            max: totalObjects,
-            current: totalPorcessed,
-        });
+        if (!isAborted) {
+            progressUpdate({
+                finished: false,
+                max: totalObjects,
+                current: totalPorcessed,
+            });
 
-        setTimeout(doChunk, 0);
+            setTimeout(doChunk, 0);
+        }
     }
 
     setTimeout(doChunk, 0);
+
+    return {
+        abort() {
+            isAborted = true;
+        }
+    };
 }
