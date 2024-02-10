@@ -54,6 +54,40 @@ async function loadFromFile() {
     }
 }
 
+async function loadFromUrl(url: string) {
+    const result = await fetch('/api/beatmapset/fromUrl?' + new URLSearchParams({
+        url: url,
+    }));
+
+    const data = await result.json();
+
+    if (!result.ok) {
+        // TODO: show error message
+        console.error('Failed to load beatmap from URL');
+        return;
+    }
+
+    currentBeatmap.value = {
+        beatmapSetId: data.beatmapSetId,
+        title: data.title,
+        artist: data.artist,
+        creator: data.creator,
+    };
+
+    availableVersions.value = data.versions.map((version: BeatmapVersion) => {
+        return {
+            beatmapId: version.beatmapId,
+            version: version.version,
+            source: 'api',
+        };
+    });
+
+    const versionToSelect = availableVersions.value
+        .find((version) => version.beatmapId == data.defaultVersion) || availableVersions.value[0];
+
+    await selectVersion(versionToSelect);
+}
+
 async function fileSelectPopup(): Promise<File|null> {
     return new Promise((resolve, reject) => {
         const input = document.createElement('input');
@@ -85,7 +119,6 @@ async function loadBeatmapSet(file: File) {
         if (zipEntry.name.endsWith('.osu')) {
             const string = await zipEntry.async('string');
             const beatmap = decoder.decodeFromString(string);
-            console.log(zipEntry.name, beatmap.mode);
             if (beatmap.mode !== 0) {
                 return;
             }
@@ -128,9 +161,7 @@ async function loadBeatmapSet(file: File) {
         };
     });
 
-    selectedVersion.value = availableVersions.value[0];
-    await nextTick();
-    renderBeatmap(beatmapData[0].beatmap);
+    await selectVersion(availableVersions.value[0]);
 }
 
 async function loadSingleBeatmap(string: string) {
@@ -156,16 +187,14 @@ async function loadSingleBeatmap(string: string) {
         if (beatmap.metadata.beatmapId) {
             beatmapId = `${beatmap.metadata.beatmapId}`;
         }
-        selectedVersion.value = {
+        availableVersions.value = [{
             beatmapId: beatmapId,
             version: beatmap.metadata.version,
             source: 'local',
             raw: string,
-        };
-        availableVersions.value = [selectedVersion.value];
+        }];
 
-        await nextTick();
-        renderBeatmap(beatmap);
+        await selectVersion(availableVersions.value[0]);
     } catch (e) {
         console.error(e);
         //  TODO: show error message
@@ -180,7 +209,6 @@ function renderBeatmap(beatmap: Beatmap) {
 }
 
 function abortRendering() {
-    console.log('abortRendering');
     if (abortRenderingSignal) {
         abortRenderingSignal.abort();
         abortRenderingSignal = null;
@@ -189,7 +217,6 @@ function abortRendering() {
 }
 
 function handleRenderingProgress(progress: RenderingProgress) {
-    console.log(progress);
     renderingProgress.value = progress;
     if (progress.finished) {
         renderingProgress.value = null;
@@ -204,16 +231,26 @@ function clearBeatmap() {
     selectedVersion.value = null;
 }
 
-function selectVersion(version: BeatmapVersion) {
+async function selectVersion(version: BeatmapVersion) {
     selectedVersion.value = version;
     const decoder = new BeatmapDecoder();
 
     if (version.source === 'local') {
         const beatmap = decoder.decodeFromString(version.raw!!);
+        await nextTick();
         renderBeatmap(beatmap);
     }
     else if (version.source === 'api') {
-        // TOOD: load source from API
+        const result = await fetch(`/api/osu/${version.beatmapId}`);
+        if (!result.ok) {
+            // TODO: show error message
+            console.error('Failed to load beatmap');
+            return;
+        }
+        const string = await result.text();
+        const beatmap = decoder.decodeFromString(string);
+        await nextTick();
+        renderBeatmap(beatmap);
     }
     else {
         console.error('Unknown version source');
@@ -242,7 +279,8 @@ function selectVersion(version: BeatmapVersion) {
 
             <TitlePage
                 v-if="!currentBeatmap"
-                @loadFromFile="(async () => loadFromFile())"
+                @loadFromFile="loadFromFile"
+                @loadFromUrl="loadFromUrl"
             />
             <HeatmapPage
                 v-else

@@ -3,6 +3,7 @@
 
 const emit = defineEmits([
     'loadFromFile',
+    'loadFromUrl',
 ]);
 </script>
 
@@ -25,7 +26,9 @@ const emit = defineEmits([
 
             <div class="divider my-2">or</div>
             <p class="mb-2 flex">Load from a link:</p>
-            <BeatmapUrlForm/>
+            <BeatmapUrlForm
+                @loadFromUrl="emit('loadFromUrl', $event)"
+            />
             <div class="divider my-2">or</div>
             <p class="mb-2 flex">Load from an example:</p>
 
