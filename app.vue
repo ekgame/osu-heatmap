@@ -38,6 +38,7 @@ const availableVersions = ref<BeatmapVersion[]>([]);
 const selectedVersion = ref<BeatmapVersion|null>(null);
 const mobileMenuOpen = ref(false);
 const renderingProgress = ref<RenderingProgress|null>(null);
+const loadingDepth = ref(0);
 
 const canvas = ref(null);
 const canvasMargin = 55;
@@ -76,54 +77,72 @@ async function loadFromDroppedFile(event: DragEvent) {
     loadFile(file);
 }
 
-async function loadFile(file: File) {
-    const fileExtension = getFileExtension(file.name);
-    if (fileExtension === 'osz') {
-        loadBeatmapSet(file);
-    }
-    else if (fileExtension === 'osu') {
-        const string = await readTextFile(file);
-        await loadSingleBeatmap(string as string);
-    }
-    else {
-        console.error('Unsupported file type');
-        // TODO: show error message
-        return;
+async function withLoading(func: () => Promise<void>) {
+    loadingDepth.value++;
+    try {
+        await func();
+    } finally {
+        loadingDepth.value--;
     }
 }
 
-async function loadFromUrl(url: string) {
-    const result = await fetch('/api/beatmapset/fromUrl?' + new URLSearchParams({
-        url: url,
-    }));
-
-    const data = await result.json();
-
-    if (!result.ok) {
-        // TODO: show error message
-        console.error('Failed to load beatmap from URL');
-        return;
-    }
-
-    currentBeatmap.value = {
-        beatmapSetId: data.beatmapSetId,
-        title: data.title,
-        artist: data.artist,
-        creator: data.creator,
-    };
-
-    availableVersions.value = data.versions.map((version: BeatmapVersion) => {
-        return {
-            beatmapId: version.beatmapId,
-            version: version.version,
-            source: 'api',
-        };
+async function loadFile(file: File) {
+    withLoading(async () => {
+        try {
+            const fileExtension = getFileExtension(file.name);
+            if (fileExtension === 'osz') {
+                loadBeatmapSet(file);
+            }
+            else if (fileExtension === 'osu') {
+                const string = await readTextFile(file);
+                await loadSingleBeatmap(string as string);
+            }
+            else {
+                console.error('Unsupported file type');
+                // TODO: show error message
+                return;
+            }
+        } catch (e) {
+            // TODO: show error message
+            console.error(e);
+        }
     });
+}
 
-    const versionToSelect = availableVersions.value
-        .find((version) => version.beatmapId == data.defaultVersion) || availableVersions.value[0];
+async function loadFromUrl(url: string) {
+    withLoading(async () => {
+        const result = await fetch('/api/beatmapset/fromUrl?' + new URLSearchParams({
+            url: url,
+        }));
 
-    await selectVersion(versionToSelect);
+        const data = await result.json();
+
+        if (!result.ok) {
+            // TODO: show error message
+            console.error('Failed to load beatmap from URL');
+            return;
+        }
+
+        currentBeatmap.value = {
+            beatmapSetId: data.beatmapSetId,
+            title: data.title,
+            artist: data.artist,
+            creator: data.creator,
+        };
+
+        availableVersions.value = data.versions.map((version: BeatmapVersion) => {
+            return {
+                beatmapId: version.beatmapId,
+                version: version.version,
+                source: 'api',
+            };
+        });
+
+        const versionToSelect = availableVersions.value
+            .find((version) => version.beatmapId == data.defaultVersion) || availableVersions.value[0];
+
+        await selectVersion(versionToSelect);
+    });
 }
 
 async function fileSelectPopup(): Promise<File|null> {
@@ -272,52 +291,57 @@ function clearBeatmap() {
 }
 
 async function selectVersion(version: BeatmapVersion) {
+    abortRendering();
     selectedVersion.value = version;
     const decoder = new BeatmapDecoder();
 
-    if (version.source === 'local') {
-        const beatmap = decoder.decodeFromString(version.raw!!);
-        plausible('beatmap-source', {
-            props: {
-                source: 'local',
-                beatmapId: beatmap.metadata.beatmapId,
-                beatmapSetId: beatmap.metadata.beatmapSetId,
-            },
-        });
+    withLoading(async () => {
+        if (version.source === 'local') {
+            const beatmap = decoder.decodeFromString(version.raw!!);
+            plausible('beatmap-source', {
+                props: {
+                    source: 'local',
+                    beatmapId: beatmap.metadata.beatmapId,
+                    beatmapSetId: beatmap.metadata.beatmapSetId,
+                },
+            });
 
-        
-        await nextTick();
-        renderBeatmap(beatmap);
-    }
-    else if (version.source === 'api') {
-        const result = await fetch(`/api/osu/${version.beatmapId}`);
-        if (!result.ok) {
-            // TODO: show error message
-            console.error('Failed to load beatmap');
-            return;
+            
+            await nextTick();
+            renderBeatmap(beatmap);
         }
-        const string = await result.text();
-        const beatmap = decoder.decodeFromString(string);
+        else if (version.source === 'api') {
+            const result = await fetch(`/api/osu/${version.beatmapId}`);
+            if (!result.ok) {
+                // TODO: show error message
+                console.error('Failed to load beatmap');
+                return;
+            }
+            const string = await result.text();
+            const beatmap = decoder.decodeFromString(string);
 
-        plausible('beatmap-source', {
-            props: {
-                source: 'api',
-                beatmapId: version.beatmapId,
-                beatmapSetId: currentBeatmap.value?.beatmapSetId,
-            },
-        });
+            plausible('beatmap-source', {
+                props: {
+                    source: 'api',
+                    beatmapId: version.beatmapId,
+                    beatmapSetId: currentBeatmap.value?.beatmapSetId,
+                },
+            });
 
-        await nextTick();
-        renderBeatmap(beatmap);
-    }
-    else {
-        console.error('Unknown version source');
-        // TODO: show error message
-    }
+            await nextTick();
+            renderBeatmap(beatmap);
+        }
+        else {
+            console.error('Unknown version source');
+            // TODO: show error message
+        }
+    });
+    
 }
 </script>
 
 <template>
+    <LoadingOverlay v-if="loadingDepth > 0"/>
     <div class="app-layout">
         <HeaderView 
             :mobileMenuOpen="mobileMenuOpen" 
@@ -325,6 +349,7 @@ async function selectVersion(version: BeatmapVersion) {
         />
 
         <div class="app-layout__main">
+    
             <MobileMenu v-if="mobileMenuOpen">
                 <HeatmapInfoAndOptions
                     :beatmap="currentBeatmap"
