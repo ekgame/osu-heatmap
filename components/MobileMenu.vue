@@ -7,7 +7,10 @@
 <style scoped>
 .mobile-menu-container {
     background-color: var(--content-background-color);
-    position: sticky;
+    position: fixed;
     inset: 0;
+    top: 52px;
+    z-index: 1;
+    overflow: auto;
 }
 </style>

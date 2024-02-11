@@ -40,6 +40,10 @@ html, body, #__nuxt {
 .app-title {
     padding: var(--header-padding);
     font-size: 1.5em;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .app-external-link-icons {
@@ -55,6 +59,7 @@ html, body, #__nuxt {
 .app-mobile-toggle {
     padding: var(--header-padding);
     align-items: center;
+    flex-shrink: 0;
 }
 
 .app-mobile-toggle img {
