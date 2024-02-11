@@ -39,6 +39,7 @@ const selectedVersion = ref<BeatmapVersion|null>(null);
 const mobileMenuOpen = ref(false);
 const renderingProgress = ref<RenderingProgress|null>(null);
 const loadingDepth = ref(0);
+const errorMessage = ref<string|null>(null);
 
 const canvas = ref(null);
 const canvasMargin = 55;
@@ -49,6 +50,14 @@ let abortRenderingSignal: AbortRenderingSignal|null = null;
 
 const toggleMobileMenu = () => {
     mobileMenuOpen.value = !mobileMenuOpen.value;
+};
+
+const showError = (message: string) => {
+    errorMessage.value = message;
+};
+
+const dismissError = () => {
+    errorMessage.value = null;
 };
 
 const readTextFile = (file: File) => new Promise((resolve, reject) => {
@@ -98,12 +107,11 @@ async function loadFile(file: File) {
                 await loadSingleBeatmap(string as string);
             }
             else {
-                console.error('Unsupported file type');
-                // TODO: show error message
+                showError('Unsupported file type');
                 return;
             }
         } catch (e) {
-            // TODO: show error message
+            showError('Failed to load the file');
             console.error(e);
         }
     });
@@ -118,8 +126,7 @@ async function loadFromUrl(url: string) {
         const data = await result.json();
 
         if (!result.ok) {
-            // TODO: show error message
-            console.error('Failed to load beatmap from URL');
+            showError('Could not load beatmap from this URL.');
             return;
         }
 
@@ -177,7 +184,7 @@ async function loadBeatmapSet(file: File) {
             const string = await zipEntry.async('string');
             const beatmap = decoder.decodeFromString(string);
             if (beatmap.mode !== 0) {
-                return;
+                continue;
             }
             beatmapData.push({
                 beatmap: beatmap,
@@ -187,8 +194,7 @@ async function loadBeatmapSet(file: File) {
     }
 
     if (beatmapData.length === 0) {
-        // TODO: show error message
-        console.error('No osu! standard mode beatmaps found in the .osz file.');
+        showError('No osu! standard mode beatmaps found in the .osz file.');
         return;
     }
 
@@ -229,7 +235,8 @@ async function loadSingleBeatmap(string: string) {
     try {
         const beatmap = decoder.decodeFromString(string);
         if (beatmap.mode !== 0) {
-            throw new Error('This file is not an osu! standard mode beatmap.');
+            showError('This file is not an osu! standard mode beatmap.');
+            return;
         }        
         let beatmapSetId = null;
         if (beatmap.metadata.beatmapSetId) {
@@ -256,7 +263,7 @@ async function loadSingleBeatmap(string: string) {
         await selectVersion(availableVersions.value[0]);
     } catch (e) {
         console.error(e);
-        //  TODO: show error message
+        showError('Failed to load the beatmap');
     }
 }
 
@@ -314,8 +321,7 @@ async function selectVersion(version: BeatmapVersion) {
         else if (version.source === 'api') {
             const result = await fetch(`/api/osu/${version.beatmapId}`);
             if (!result.ok) {
-                // TODO: show error message
-                console.error('Failed to load beatmap');
+                showError('Could not load beatmap');
                 return;
             }
             const string = await result.text();
@@ -333,8 +339,7 @@ async function selectVersion(version: BeatmapVersion) {
             renderBeatmap(beatmap);
         }
         else {
-            console.error('Unknown version source');
-            // TODO: show error message
+            showError('Unknown beatmap source');
         }
     });
     
@@ -343,6 +348,7 @@ async function selectVersion(version: BeatmapVersion) {
 
 <template>
     <LoadingOverlay v-if="loadingDepth > 0"/>
+    <ErrorOverlay v-if="errorMessage" :message="errorMessage" @dismiss="dismissError"/>
     <div class="app-layout">
         <HeaderView 
             :mobileMenuOpen="mobileMenuOpen" 
