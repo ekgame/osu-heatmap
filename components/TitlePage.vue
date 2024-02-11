@@ -32,7 +32,9 @@ const emit = defineEmits([
         @drop.prevent="onDrop"
     >
         <div class="app-title-screen-container">
-            <h1 class="font-bold text-2xl">Load a beatmap</h1>
+            <h2 class="font-bold text-2xl mb-2">What is this?</h2>
+            <p class="mb-10">A heatmap generator for osu! beatmaps. Lighter colors show where there are more objects, darker colors where there are less. See where the play area is underused if you're an aspiring mapper or the hidden beauty some mappers hide in their maps.</p>
+            <h2 class="font-bold text-2xl mb-2">Load a beatmap</h2>
             <p class="mb-10">Supports .osu and .osz files for the standard gamemode</p>
             <div class="hidden sm:block">
                 <p>Drag and drop a file into this window.</p>

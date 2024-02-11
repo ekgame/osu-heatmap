@@ -7,6 +7,17 @@ import type { Beatmap } from 'osu-classes';
 import PinchScrollZoom from '@coddicat/vue-pinch-scroll-zoom';
 import JsZip from "jszip";
 
+const title = 'osu! beatmap heatmap viewer';
+const description = 'A heatmap generator for osu! beatmaps. Lighter colors show where there are more objects, darker colors where there are less. See where the play area is underused if you\'re an aspiring mapper or the hidden beauty some mappers hide in their maps.';
+
+useSeoMeta({
+  title: title,
+  ogTitle: title,
+  description: description,
+  ogDescription: description,
+  ogImage: 'https://osu-heatmap.ekga.me/assets/og-image.png',
+});
+
 const currentBeatmap = ref<BeatmapDefinition|null>(null);
 const availableVersions = ref<BeatmapVersion[]>([]);
 const selectedVersion = ref<BeatmapVersion|null>(null);
