@@ -10,6 +10,21 @@ import JsZip from "jszip";
 const title = 'osu! beatmap heatmap viewer';
 const description = 'A heatmap generator for osu! beatmaps. Lighter colors show where there are more objects, darker colors where there are less. See where the play area is underused if you\'re an aspiring mapper or the hidden beauty some mappers hide in their maps.';
 
+useHead({
+  script: [
+    {
+      defer: true,
+      'data-domain': 'osu-heatmap.ekga.me',
+      src: 'https://analytics.ekga.me/js/plausible.js',
+    },
+    {
+        innerHTML: `window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }`,
+    }
+  ],
+});
+
+declare function plausible(event: string, properties: any): void;
+
 useSeoMeta({
   title: title,
   ogTitle: title,
@@ -164,6 +179,8 @@ async function loadBeatmapSet(file: File) {
         beatmapSetId = `${referenceBeatmap.metadata.beatmapSetId}`;
     }
 
+    plausible('load-beatmap-set', { props: { beatmapSetId } });
+
     currentBeatmap.value = {
         beatmapSetId: beatmapSetId,
         title: referenceBeatmap.metadata.title,
@@ -260,6 +277,15 @@ async function selectVersion(version: BeatmapVersion) {
 
     if (version.source === 'local') {
         const beatmap = decoder.decodeFromString(version.raw!!);
+        plausible('beatmap-source', {
+            props: {
+                source: 'local',
+                beatmapId: beatmap.metadata.beatmapId,
+                beatmapSetId: beatmap.metadata.beatmapSetId,
+            },
+        });
+
+        
         await nextTick();
         renderBeatmap(beatmap);
     }
@@ -272,6 +298,15 @@ async function selectVersion(version: BeatmapVersion) {
         }
         const string = await result.text();
         const beatmap = decoder.decodeFromString(string);
+
+        plausible('beatmap-source', {
+            props: {
+                source: 'api',
+                beatmapId: version.beatmapId,
+                beatmapSetId: currentBeatmap.value?.beatmapSetId,
+            },
+        });
+
         await nextTick();
         renderBeatmap(beatmap);
     }
