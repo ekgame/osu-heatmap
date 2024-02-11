@@ -4,3 +4,4 @@
 - [ ] Add title and seo
 - [ ] Add error message
 - [ ] Write a readme
+- [+] Add a link to the beatmap page from "currently viewing"

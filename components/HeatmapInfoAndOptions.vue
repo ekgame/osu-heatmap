@@ -11,6 +11,13 @@ const emit = defineEmits([
     'reset',
     'selectVersion',
 ]);
+
+const beatmaplink = computed(() => {
+    if (!props.beatmap || !props.beatmap.beatmapSetId) {
+        return null;
+    }
+    return `https://osu.ppy.sh/beatmapsets/${props.beatmap.beatmapSetId}`;
+});
 </script>
 
 <template>
@@ -18,12 +25,14 @@ const emit = defineEmits([
         <template v-if="beatmap">
             <div class="p-4">
                 <p class="mb-2 font-bold">Currently viewing:</p>
-                <BeatmapCard
-                    :beatmapSetId="beatmap.beatmapSetId"
-                    :title="beatmap.title"
-                    :artist="beatmap.artist"
-                    :creator="beatmap.creator"
-                />
+                <component :is="beatmaplink ? 'a' : 'v-fragment'" target="_blank" :href="beatmaplink">
+                    <BeatmapCard
+                        :beatmapSetId="beatmap.beatmapSetId"
+                        :title="beatmap.title || 'N/A'"
+                        :artist="beatmap.artist || 'N/A'"
+                        :creator="beatmap.creator || 'N/A'"
+                    />
+                </component>
             </div>
             <div class="flex flex-col">
                 <div 
@@ -33,7 +42,7 @@ const emit = defineEmits([
                     :key="index"
                     @click="emit('selectVersion', version)"
                 >
-                    {{ version.version }}
+                    {{ version.version || 'N/A' }}
                 </div>
             </div>
         </template>
