@@ -292,6 +292,7 @@ function clearBeatmap() {
 
 async function selectVersion(version: BeatmapVersion) {
     abortRendering();
+    mobileMenuOpen.value = false;
     selectedVersion.value = version;
     const decoder = new BeatmapDecoder();
 
