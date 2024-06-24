@@ -14,16 +14,11 @@ useHead({
   script: [
     {
       defer: true,
-      'data-domain': 'osu-heatmap.ekga.me',
-      src: 'https://analytics.ekga.me/js/plausible.js',
-    },
-    {
-        innerHTML: `window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }`,
+      'data-website-id': '096aad0c-a094-43d5-8fcb-16bdde0402a1',
+      src: 'https://analytics.ekga.me/script.js',
     }
   ],
 });
-
-declare function plausible(event: string, properties: any): void;
 
 useSeoMeta({
   title: title,
@@ -204,8 +199,6 @@ async function loadBeatmapSet(file: File) {
         beatmapSetId = `${referenceBeatmap.metadata.beatmapSetId}`;
     }
 
-    plausible('load-beatmap-set', { props: { beatmapSetId } });
-
     currentBeatmap.value = {
         beatmapSetId: beatmapSetId,
         title: referenceBeatmap.metadata.title,
@@ -306,15 +299,7 @@ async function selectVersion(version: BeatmapVersion) {
     withLoading(async () => {
         if (version.source === 'local') {
             const beatmap = decoder.decodeFromString(version.raw!!);
-            plausible('beatmap-source', {
-                props: {
-                    source: 'local',
-                    beatmapId: beatmap.metadata.beatmapId,
-                    beatmapSetId: beatmap.metadata.beatmapSetId,
-                },
-            });
 
-            
             await nextTick();
             renderBeatmap(beatmap);
         }
@@ -326,14 +311,6 @@ async function selectVersion(version: BeatmapVersion) {
             }
             const string = await result.text();
             const beatmap = decoder.decodeFromString(string);
-
-            plausible('beatmap-source', {
-                props: {
-                    source: 'api',
-                    beatmapId: version.beatmapId,
-                    beatmapSetId: currentBeatmap.value?.beatmapSetId,
-                },
-            });
 
             await nextTick();
             renderBeatmap(beatmap);
