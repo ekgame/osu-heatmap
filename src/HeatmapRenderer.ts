@@ -18,6 +18,7 @@ class BeatmapHeatmapRenderer {
         this.bufferCanvas.height = this.height;
         this.bufferCanvasContext = this.bufferCanvas.getContext('2d')!!;
         this.buffer = new Int32Array(this.width * this.height);
+        this.clearBufferCanvas();
     }
 
     private clearBufferCanvas() {
@@ -26,10 +27,10 @@ class BeatmapHeatmapRenderer {
     }
 
     private autoFlush() {
-        //this.passes++;
-        //if (this.passes >= 1) {
+        this.passes++;
+        if (this.passes >= 20) {
             this.flush();
-        //}
+        }
     }
 
     public flush() {
@@ -51,9 +52,9 @@ class BeatmapHeatmapRenderer {
             0,
             2 * Math.PI
         );
-        this.bufferCanvasContext.fillStyle = 'rgba(255, 255, 255, 1)';
+        this.bufferCanvasContext.fillStyle = 'rgba(255, 255, 255, 0.05)';
         this.bufferCanvasContext.fill();
-        this.flush();
+        this.autoFlush();
     }
 
     public renderSlider(slider: Slider) {
@@ -71,9 +72,9 @@ class BeatmapHeatmapRenderer {
         this.bufferCanvasContext.lineWidth = this.circleRadius * 2;
         this.bufferCanvasContext.lineCap = 'round';
         this.bufferCanvasContext.lineJoin = 'round';
-        this.bufferCanvasContext.strokeStyle = 'rgba(255, 255, 255, 1)';
+        this.bufferCanvasContext.strokeStyle = 'rgba(255, 255, 255, 0.05)';
         this.bufferCanvasContext.stroke();
-        this.flush();
+        this.autoFlush();
     }
 
     public renderToCanvas(canvas: HTMLCanvasElement, gradient: tinygradient.Instance) {
@@ -138,15 +139,15 @@ export function render(
     const circleRadius = 54.4 - 4.48 * circleSize;
     const heatmapRenderer = new BeatmapHeatmapRenderer(canvas.width, canvas.height, circleRadius);
     const totalObjects = beatmap.hitObjects.length;
-    let totalPorcessed = 0;
-    const objectChunks = [...chunks(beatmap.hitObjects, 50)];
+    let totalProcessed = 0;
+    const objectChunks = [...chunks(beatmap.hitObjects, 10)];
 
     let isAborted = false;
 
     progressUpdate({
         finished: false,
         max: totalObjects,
-        current: totalPorcessed,
+        current: totalProcessed,
     });
 
     function doChunk() {
@@ -167,7 +168,7 @@ export function render(
             progressUpdate({
                 finished: true,
                 max: totalObjects,
-                current: totalPorcessed,
+                current: totalProcessed,
             });
             return;
         }
@@ -184,14 +185,14 @@ export function render(
             else if (hitObject instanceof Slider) {
                 heatmapRenderer.renderSlider(hitObject);
             }
-            totalPorcessed++;
+            totalProcessed++;
         });
 
         if (!isAborted) {
             progressUpdate({
                 finished: false,
                 max: totalObjects,
-                current: totalPorcessed,
+                current: totalProcessed,
             });
 
             setTimeout(doChunk, 0);
