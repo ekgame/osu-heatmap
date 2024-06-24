@@ -26,6 +26,9 @@ Setup:
 5. Run `npm run dev` to launch the server in development mode.
 
 ## Version history
+- 1.1
+    - Optimized heatmap generation
+    - Fixed progress bar in Chromium browsers 
 - 1.0
     - Initial release
     - Loading .osu and .osz files

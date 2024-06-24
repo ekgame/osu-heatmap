@@ -1,7 +1,0 @@
-- [+] Fix mobile menu
-- [+] Add loading spinner for actions that take awhile to complete
-- [+] Add analytics script
-- [+] Add title and seo
-- [+] Add error message
-- [ ] Write a readme
-- [+] Add a link to the beatmap page from "currently viewing"
