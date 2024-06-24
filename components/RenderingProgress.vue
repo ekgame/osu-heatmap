@@ -51,6 +51,7 @@ const emit = defineEmits([
 
 progress {
     border-radius: 0.5em;
+    width: 100%;
 }
 
 progress[value]::-moz-progress-bar {
