@@ -1,28 +1,45 @@
 {
-  "name": "nuxt-app",
+  "name": "osu-heatmap",
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "nuxt build",
-    "dev": "nuxt dev",
-    "generate": "nuxt generate",
-    "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
-  },
-  "devDependencies": {
-    "@nuxtjs/tailwindcss": "^6.11.3",
-    "nuxt": "^3.10.0",
-    "vue": "^3.4.15",
-    "vue-router": "^4.2.5"
+    "build": "react-router build",
+    "dev": "react-router dev",
+    "start": "node --env-file-if-exists=.env ./node_modules/@react-router/serve/bin.cjs ./build/server/index.js",
+    "typecheck": "react-router typegen && tsc"
   },
   "dependencies": {
-    "@coddicat/vue-pinch-scroll-zoom": "^4.3.5",
+    "@react-router/node": "^8.4.0",
+    "@react-router/serve": "^8.4.0",
+    "@tanstack/react-query": "^5.104.0",
+    "clsx": "^2.1.1",
+    "file-saver": "^2.0.5",
+    "isbot": "^5.1.36",
     "jszip": "^3.10.1",
+    "lru-cache": "^11.5.3",
     "osu-classes": "^3.0.1",
     "osu-parsers": "^4.1.6",
     "osu-standard-stable": "^5.0.0",
     "pino": "^8.18.0",
     "pino-pretty": "^10.3.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-dropzone": "^20.1.2",
+    "react-icons": "^5.7.0",
+    "react-router": "^8.4.0",
+    "react-zoom-pan-pinch": "^4.2.0",
+    "sonner": "^2.0.8",
     "tinygradient": "^1.1.5"
+  },
+  "devDependencies": {
+    "@react-router/dev": "^8.4.0",
+    "@tailwindcss/vite": "^4.2.2",
+    "@types/file-saver": "^2.0.7",
+    "@types/node": "^22",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "tailwindcss": "^4.2.2",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.3"
   }
 }

@@ -16,26 +16,15 @@ Supports loading .osu and .osz files and loading beatmap sets from the official 
 
 ## Running locally for development
 Prerequisites:
-- Node v21 - that's the version I worked with, but other versions might work too
+- Node v22.22 or newer
 
 Setup:
 1. Clone the repository.
 2. Open the project in a terminal.
-3. Run `npm install` to install dependencies.
+3. Run `npm install` to install dependencies.1
 4. Copy `.env.example` to `.env` and fill out the enviroment variables.
 5. Run `npm run dev` to launch the server in development mode.
 
-## Version history
-- 1.1
-    - Optimized heatmap generation
-    - Fixed progress bar in Chromium browsers 
-- 1.0
-    - Initial release
-    - Loading .osu and .osz files
-    - Loading from URL
-    - Loading from examples
-
 ## Acknowledgments
-- [osu-classes](https://github.com/kionell/osu-classes), [osu-parsers](https://github.com/kionell/osu-parsers) and [osu-standard-stable](https://github.com/kionell/osu-standard-stable) - does the heavy lifting of parsing beatmaps and approximating slider paths. 
-- The website uses [Nuxt](https://nuxt.com/) for client and server.
+- [osu-classes](https://github.com/kionell/osu-classes), [osu-parsers](https://github.com/kionell/osu-parsers) and [osu-standard-stable](https://github.com/kionell/osu-standard-stable) - does the heavy lifting of parsing beatmaps and approximating slider paths.
 - [tinygradient](https://github.com/mistic100/tinygradient) - used for the color gradients.
