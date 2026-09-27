@@ -1,5 +1,5 @@
 import { Circle, Slider, StandardBeatmap } from "osu-standard-stable";
-import tinygradient from "tinygradient";
+import type tinygradient from "tinygradient";
 
 export const PLAYFIELD_WIDTH = 512;
 export const PLAYFIELD_HEIGHT = 384;
@@ -10,7 +10,12 @@ export const HEATMAP_HEIGHT = PLAYFIELD_HEIGHT + PLAYFIELD_MARGIN * 2;
 
 export const HEATMAP_RESOLUTION = 2;
 
-class BeatmapHeatmapRenderer {
+/** A heatmap that finished rendering, it can be painted with any gradient. */
+export interface RenderedHeatmap {
+    renderToCanvas(canvas: HTMLCanvasElement, gradient: tinygradient.Instance): void;
+}
+
+class BeatmapHeatmapRenderer implements RenderedHeatmap {
     private bufferCanvas: HTMLCanvasElement;
     private bufferCanvasContext: CanvasRenderingContext2D;
     private buffer: Int32Array;
@@ -154,6 +159,7 @@ export function render(
     beatmap: StandardBeatmap,
     canvas: HTMLCanvasElement,
     progressUpdate: (progress: RenderingProgress) => void,
+    onFinished: (heatmap: RenderedHeatmap) => void,
 ): AbortRenderingSignal {
     const context = canvas.getContext('2d')!!;
     if (!context) {
@@ -181,14 +187,8 @@ export function render(
         }
 
         if (objectChunks.length === 0) {
-            const gradient = tinygradient([
-                {color: 'black', pos: 0},
-                {color: '#e93e3a', pos: 0.2},
-                {pos: 0.4},
-                {color: '#FFF33B', pos: 1}
-            ]);
-        
-            heatmapRenderer.renderToCanvas(canvas, gradient);
+            heatmapRenderer.flush();
+            onFinished(heatmapRenderer);
 
             progressUpdate({
                 finished: true,

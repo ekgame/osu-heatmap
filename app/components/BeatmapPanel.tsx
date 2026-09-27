@@ -1,6 +1,7 @@
 import clsx from "clsx";
 import { LuArrowLeft, LuExternalLink, LuStar } from "react-icons/lu";
 import { Link, useNavigate } from "react-router";
+import { gradientPreview, gradients, type HeatmapGradient } from "~/lib/gradients";
 import type { BeatmapDefinition } from "~/lib/models";
 
 export interface ViewerVersion {
@@ -62,11 +63,13 @@ function BeatmapInfo({ beatmap }: { beatmap: BeatmapDefinition }) {
     );
 }
 
-export function BeatmapPanel({ beatmap, versions, selected, onSelect }: {
+export function BeatmapPanel({ beatmap, versions, selected, onSelect, gradient, onGradientChange }: {
     beatmap: BeatmapDefinition,
     versions: ViewerVersion[],
     selected: ViewerVersion|null,
     onSelect?: (version: ViewerVersion) => void,
+    gradient: HeatmapGradient,
+    onGradientChange: (gradient: HeatmapGradient) => void,
 }) {
     const navigate = useNavigate();
 
@@ -147,6 +150,29 @@ export function BeatmapPanel({ beatmap, versions, selected, onSelect }: {
                         );
                     })}
                 </nav>
+            </div>
+
+            <div className="flex flex-col gap-1 md:gap-2">
+                <div className="section-label">Gradient</div>
+                <div className="grid grid-cols-3 gap-1.5" role="radiogroup" aria-label="Gradient">
+                    {gradients.map((option) => (
+                        <button
+                            key={option.id}
+                            type="button"
+                            role="radio"
+                            aria-checked={option === gradient}
+                            aria-label={option.name}
+                            title={option.name}
+                            className={clsx(
+                                'h-7 cursor-pointer rounded-xs border p-0.5 transition-colors',
+                                option === gradient ? 'border-accent' : 'border-ink-600 hover:border-ink-300',
+                            )}
+                            onClick={() => onGradientChange(option)}
+                        >
+                            <span className="block h-full" style={{ backgroundImage: gradientPreview(option) }} />
+                        </button>
+                    ))}
+                </div>
             </div>
         </aside>
     );
